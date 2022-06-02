@@ -439,7 +439,7 @@ def book_artist(artist_id):
 #  ----------------------------------------------------------------
 @app.route('/artists/<int:artist_id>/edit', methods=['GET'])
 def edit_artist(artist_id):
-    form = ArtistForm()
+    form = ArtistForm(request.form)
     artist=Artist.query.get(artist_id)
     
     for field, value in vars(artist).items():
@@ -456,7 +456,7 @@ def edit_artist(artist_id):
 def edit_artist_submission(artist_id):
     # TODO: take values from the form submitted, and update existing
     # artist record with ID <artist_id> using the new attributes
-    form = ArtistForm()
+    form = ArtistForm(request.form)
     artist = Artist.query.get(artist_id)
     try:
         artist.city=form.city.data

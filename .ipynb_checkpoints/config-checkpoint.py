@@ -7,8 +7,11 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 DEBUG = True
 
 # Connect to the database
-
+username = 'postgres'
+password = '21101682'
+url = 'localhost:5432'
+DATABASE_NAME = 'fyyur'
 
 # TODO IMPLEMENT DATABASE URL
-SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:21101682@localhost:5432/fyyur'
+SQLALCHEMY_DATABASE_URI = f'postgresql://{username}:{password}@{url}/{DATABASE_NAME}'
 SQLALCHEMY_TRACK_MODIFICATIONS = False

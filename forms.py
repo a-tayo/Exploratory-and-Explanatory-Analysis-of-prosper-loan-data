@@ -1,14 +1,26 @@
 from datetime import datetime
 from flask_wtf import FlaskForm
-from wtforms import StringField, SelectField, SelectMultipleField, DateTimeField, BooleanField
+from wtforms import StringField, SelectField, SelectMultipleField, DateTimeField, BooleanField, ValidationError
 from wtforms.validators import DataRequired, AnyOf, URL
+import phonenumbers
 
+def phone_validator(phone):
+    try:
+        input_number = phonenumbers.parse(phone.data, None)
+    except NumberParseException as np:
+        raise ValidationError('Not a valid number')
+    is_valid =phonenumbers.is_valid(input_number)
+    if not is_valid:
+        raise ValidationError('Not a valid number')
+        
 class ShowForm(FlaskForm):
     artist_id = StringField(
-        'artist_id'
+        'artist_id',
+        validators=[DataRequired()]
     )
     venue_id = StringField(
-        'venue_id'
+        'venue_id',
+        validators=[DataRequired()]
     )
     start_time = DateTimeField(
         'start_time',
@@ -83,10 +95,10 @@ class VenueForm(FlaskForm):
         'address', validators=[DataRequired()]
     )
     phone = StringField(
-        'phone'
+        'phone', validators=[DataRequired(), phone_validator]
     )
     image_link = StringField(
-        'image_link'
+        'image_link', validators=[URL()]
     )
     genres = SelectMultipleField(
         # TODO implement enum restriction
@@ -117,7 +129,7 @@ class VenueForm(FlaskForm):
         'facebook_link', validators=[URL()]
     )
     website_link = StringField(
-        'website_link'
+        'website_link', validators=[URL()]
     )
 
     seeking_talent = BooleanField( 'seeking_talent' )
@@ -192,11 +204,10 @@ class ArtistForm(FlaskForm):
         ]
     )
     phone = StringField(
-        # TODO implement validation logic for state
-        'phone'
+        'phone', validators=[DataRequired(), phone_validator]
     )
     image_link = StringField(
-        'image_link'
+        'image_link', validators=[URL()]
     )
     genres = SelectMultipleField(
         'genres', validators=[DataRequired()],
@@ -228,7 +239,7 @@ class ArtistForm(FlaskForm):
      )
 
     website_link = StringField(
-        'website_link'
+        'website_link', validators=[URL()]
      )
 
     seeking_venue = BooleanField( 'seeking_venue' )
