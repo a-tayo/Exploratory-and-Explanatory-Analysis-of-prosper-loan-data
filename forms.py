@@ -1,18 +1,17 @@
 from datetime import datetime
 from flask_wtf import FlaskForm
-from wtforms import StringField, SelectField, SelectMultipleField, DateTimeField, BooleanField, ValidationError
-from wtforms.validators import DataRequired, AnyOf, URL
-import phonenumbers
+from wtforms import (StringField, 
+                     SelectField, 
+                     SelectMultipleField, 
+                     DateTimeField, 
+                     BooleanField)
 
-def phone_validator(phone):
-    try:
-        input_number = phonenumbers.parse(phone.data, None)
-    except NumberParseException as np:
-        raise ValidationError('Not a valid number')
-    is_valid =phonenumbers.is_valid(input_number)
-    if not is_valid:
-        raise ValidationError('Not a valid number')
-        
+from wtforms.validators import DataRequired, AnyOf, Optional
+from wtforms_alchemy import PhoneNumberField, URL
+
+def url_validator(self, value):
+    if value:
+        URL()
 class ShowForm(FlaskForm):
     artist_id = StringField(
         'artist_id',
@@ -36,72 +35,86 @@ class VenueForm(FlaskForm):
         'city', validators=[DataRequired()]
     )
     state = SelectField(
-        'state', validators=[DataRequired()],
-        choices=[
-            ('AL', 'AL'),
-            ('AK', 'AK'),
-            ('AZ', 'AZ'),
-            ('AR', 'AR'),
-            ('CA', 'CA'),
-            ('CO', 'CO'),
-            ('CT', 'CT'),
-            ('DE', 'DE'),
-            ('DC', 'DC'),
-            ('FL', 'FL'),
-            ('GA', 'GA'),
-            ('HI', 'HI'),
-            ('ID', 'ID'),
-            ('IL', 'IL'),
-            ('IN', 'IN'),
-            ('IA', 'IA'),
-            ('KS', 'KS'),
-            ('KY', 'KY'),
-            ('LA', 'LA'),
-            ('ME', 'ME'),
-            ('MT', 'MT'),
-            ('NE', 'NE'),
-            ('NV', 'NV'),
-            ('NH', 'NH'),
-            ('NJ', 'NJ'),
-            ('NM', 'NM'),
-            ('NY', 'NY'),
-            ('NC', 'NC'),
-            ('ND', 'ND'),
-            ('OH', 'OH'),
-            ('OK', 'OK'),
-            ('OR', 'OR'),
-            ('MD', 'MD'),
-            ('MA', 'MA'),
-            ('MI', 'MI'),
-            ('MN', 'MN'),
-            ('MS', 'MS'),
-            ('MO', 'MO'),
-            ('PA', 'PA'),
-            ('RI', 'RI'),
-            ('SC', 'SC'),
-            ('SD', 'SD'),
-            ('TN', 'TN'),
-            ('TX', 'TX'),
-            ('UT', 'UT'),
-            ('VT', 'VT'),
-            ('VA', 'VA'),
-            ('WA', 'WA'),
-            ('WV', 'WV'),
-            ('WI', 'WI'),
-            ('WY', 'WY'),
-        ]
+        'state', validators=[DataRequired(), AnyOf(['AL','AK','AZ','AR',
+                                                    'CA','CO', 'CT', 'DE', 
+                                                    'DC', 'FL', 'GA', 'HI',
+                                                    'ID', 'IL', 'IN', 'IA',
+                                                    'KS', 'KY', 'LA','ME',
+                                                    'MT','NE', 'NV', 'NH',
+                                                    'NJ', 'NM','NY','NC','ND',
+                                                    'OH', 'OK','MD','MA',
+                                                    'MI','MN','MS','MO',
+                                                    'PA','RI','SC', 
+                                                    'SD','TN','TX','UT',
+                                                    'VT','VA', 'WA', 'WV', 
+                                                    'WI','WY'])],
+                    choices=[
+                        ('AL', 'AL'),
+                        ('AK', 'AK'),
+                        ('AZ', 'AZ'),
+                        ('AR', 'AR'),
+                        ('CA', 'CA'),
+                        ('CO', 'CO'),
+                        ('CT', 'CT'),
+                        ('DE', 'DE'),
+                        ('DC', 'DC'),
+                        ('FL', 'FL'),
+                        ('GA', 'GA'),
+                        ('HI', 'HI'),
+                        ('ID', 'ID'),
+                        ('IL', 'IL'),
+                        ('IN', 'IN'),
+                        ('IA', 'IA'),
+                        ('KS', 'KS'),
+                        ('KY', 'KY'),
+                        ('LA', 'LA'),
+                        ('ME', 'ME'),
+                        ('MT', 'MT'),
+                        ('NE', 'NE'),
+                        ('NV', 'NV'),
+                        ('NH', 'NH'),
+                        ('NJ', 'NJ'),
+                        ('NM', 'NM'),
+                        ('NY', 'NY'),
+                        ('NC', 'NC'),
+                        ('ND', 'ND'),
+                        ('OH', 'OH'),
+                        ('OK', 'OK'),
+                        ('OR', 'OR'),
+                        ('MD', 'MD'),
+                        ('MA', 'MA'),
+                        ('MI', 'MI'),
+                        ('MN', 'MN'),
+                        ('MS', 'MS'),
+                        ('MO', 'MO'),
+                        ('PA', 'PA'),
+                        ('RI', 'RI'),
+                        ('SC', 'SC'),
+                        ('SD', 'SD'),
+                        ('TN', 'TN'),
+                        ('TX', 'TX'),
+                        ('UT', 'UT'),
+                        ('VT', 'VT'),
+                        ('VA', 'VA'),
+                        ('WA', 'WA'),
+                        ('WV', 'WV'),
+                        ('WI', 'WI'),
+                        ('WY', 'WY'),
+                    ]
     )
     address = StringField(
         'address', validators=[DataRequired()]
     )
-    phone = StringField(
-        'phone', validators=[DataRequired(), phone_validator]
+    phone = PhoneNumberField(
+        label='phone',
+        region='US',
+        validators=[DataRequired()]
     )
     image_link = StringField(
-        'image_link', validators=[URL()]
+        'image_link',
+        validators=[Optional(), URL()]
     )
     genres = SelectMultipleField(
-        # TODO implement enum restriction
         'genres', validators=[DataRequired()],
         choices=[
             ('Alternative', 'Alternative'),
@@ -126,10 +139,12 @@ class VenueForm(FlaskForm):
         ]
     )
     facebook_link = StringField(
-        'facebook_link', validators=[URL()]
+        'facebook_link',
+        validators=[Optional(), URL()]
     )
     website_link = StringField(
-        'website_link', validators=[URL()]
+        'website_link',
+        validators=[Optional(), URL()]
     )
 
     seeking_talent = BooleanField( 'seeking_talent' )
@@ -149,65 +164,67 @@ class ArtistForm(FlaskForm):
     )
     state = SelectField(
         'state', validators=[DataRequired()],
-        choices=[
-            ('AL', 'AL'),
-            ('AK', 'AK'),
-            ('AZ', 'AZ'),
-            ('AR', 'AR'),
-            ('CA', 'CA'),
-            ('CO', 'CO'),
-            ('CT', 'CT'),
-            ('DE', 'DE'),
-            ('DC', 'DC'),
-            ('FL', 'FL'),
-            ('GA', 'GA'),
-            ('HI', 'HI'),
-            ('ID', 'ID'),
-            ('IL', 'IL'),
-            ('IN', 'IN'),
-            ('IA', 'IA'),
-            ('KS', 'KS'),
-            ('KY', 'KY'),
-            ('LA', 'LA'),
-            ('ME', 'ME'),
-            ('MT', 'MT'),
-            ('NE', 'NE'),
-            ('NV', 'NV'),
-            ('NH', 'NH'),
-            ('NJ', 'NJ'),
-            ('NM', 'NM'),
-            ('NY', 'NY'),
-            ('NC', 'NC'),
-            ('ND', 'ND'),
-            ('OH', 'OH'),
-            ('OK', 'OK'),
-            ('OR', 'OR'),
-            ('MD', 'MD'),
-            ('MA', 'MA'),
-            ('MI', 'MI'),
-            ('MN', 'MN'),
-            ('MS', 'MS'),
-            ('MO', 'MO'),
-            ('PA', 'PA'),
-            ('RI', 'RI'),
-            ('SC', 'SC'),
-            ('SD', 'SD'),
-            ('TN', 'TN'),
-            ('TX', 'TX'),
-            ('UT', 'UT'),
-            ('VT', 'VT'),
-            ('VA', 'VA'),
-            ('WA', 'WA'),
-            ('WV', 'WV'),
-            ('WI', 'WI'),
-            ('WY', 'WY'),
-        ]
+                choices=[
+                    ('AL', 'AL'),
+                    ('AK', 'AK'),
+                    ('AZ', 'AZ'),
+                    ('AR', 'AR'),
+                    ('CA', 'CA'),
+                    ('CO', 'CO'),
+                    ('CT', 'CT'),
+                    ('DE', 'DE'),
+                    ('DC', 'DC'),
+                    ('FL', 'FL'),
+                    ('GA', 'GA'),
+                    ('HI', 'HI'),
+                    ('ID', 'ID'),
+                    ('IL', 'IL'),
+                    ('IN', 'IN'),
+                    ('IA', 'IA'),
+                    ('KS', 'KS'),
+                    ('KY', 'KY'),
+                    ('LA', 'LA'),
+                    ('ME', 'ME'),
+                    ('MT', 'MT'),
+                    ('NE', 'NE'),
+                    ('NV', 'NV'),
+                    ('NH', 'NH'),
+                    ('NJ', 'NJ'),
+                    ('NM', 'NM'),
+                    ('NY', 'NY'),
+                    ('NC', 'NC'),
+                    ('ND', 'ND'),
+                    ('OH', 'OH'),
+                    ('OK', 'OK'),
+                    ('OR', 'OR'),
+                    ('MD', 'MD'),
+                    ('MA', 'MA'),
+                    ('MI', 'MI'),
+                    ('MN', 'MN'),
+                    ('MS', 'MS'),
+                    ('MO', 'MO'),
+                    ('PA', 'PA'),
+                    ('RI', 'RI'),
+                    ('SC', 'SC'),
+                    ('SD', 'SD'),
+                    ('TN', 'TN'),
+                    ('TX', 'TX'),
+                    ('UT', 'UT'),
+                    ('VT', 'VT'),
+                    ('VA', 'VA'),
+                    ('WA', 'WA'),
+                    ('WV', 'WV'),
+                    ('WI', 'WI'),
+                    ('WY', 'WY'),
+                ]
     )
-    phone = StringField(
-        'phone', validators=[DataRequired(), phone_validator]
+    phone = PhoneNumberField(
+        label='phone',
+        region='US'
     )
     image_link = StringField(
-        'image_link', validators=[URL()]
+        'image_link',
+        validators=[Optional(), URL()]
     )
     genres = SelectMultipleField(
         'genres', validators=[DataRequired()],
@@ -234,13 +251,14 @@ class ArtistForm(FlaskForm):
         ]
      )
     facebook_link = StringField(
-        # TODO implement enum restriction
-        'facebook_link', validators=[URL()]
-     )
+        'facebook_link',
+        validators=[Optional(), URL()]
+    )
 
     website_link = StringField(
-        'website_link', validators=[URL()]
-     )
+        'website_link',
+        validators=[Optional(), URL()]
+    )
 
     seeking_venue = BooleanField( 'seeking_venue' )
 
